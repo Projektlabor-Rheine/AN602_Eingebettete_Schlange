@@ -1,5 +1,6 @@
 import websocket
 import json
+import threading
 
 try:
     import thread
@@ -41,6 +42,7 @@ class CACConnection:
         self.evt_connect = evt_connect
         self.evt_disconnect = evt_disconnect
         self.ws = None
+        self.wst = None
         self.__registeredPackets = {}
 
     # Starts or restarts the websocket-connection
@@ -48,8 +50,11 @@ class CACConnection:
         # Creates the websocket
         self.ws = websocket.WebSocketApp(self.url, on_open=self.__on_open, on_message=self.__on_packet,
                                          on_close=self.__on_close)
-        # Connects the socket
-        self.ws.run_forever()
+
+        # Creates the thread and starts the ws connection using it
+        self.wsthread = threading.Thread(target=self.ws.run_forever)
+        self.wsthread.daemon = True
+        self.wsthread.start()
 
     '''
     Register a packet-handler
@@ -59,6 +64,19 @@ class CACConnection:
 
     def registerPacket(self, packet_id: int, handler: staticmethod):
         self.__registeredPackets[packet_id] = handler
+
+    # Sends a line detection packet quick and dirty
+    def sendLineDetectionPacketQD(self, isLineDetected: bool):
+        self._sendPacketDirty(0, {"on": isLineDetected})
+
+    # Quick and dirty was to send a packet (Because of time)
+    def _sendPacketDirty(self, pktId: int, data: dict):
+        try:
+            self.ws.send(json.dumps({"data": data, "id": pktId}))
+        except:
+            # Ignore for now
+            # TODO
+            pass
 
     # Event handler for the open socket event
     def __on_open(self, _):

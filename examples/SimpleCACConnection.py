@@ -3,8 +3,9 @@ import CACConnection
 
 # Starts the connection to the cac
 def main():
+    global con
     # Creates the cac-connection
-    con = CACConnection.CACConnection("ws://localhost/ws/connect")
+    con = CACConnection.CACConnection("ws://localhost/ws/pi")
 
     # Registers the key-packet-handler with the packet-id 0
     con.registerPacket(0, handleKeyupdate)
