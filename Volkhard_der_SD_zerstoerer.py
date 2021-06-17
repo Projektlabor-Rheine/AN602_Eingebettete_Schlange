@@ -3,7 +3,7 @@ import CACConnection
 import time
 from time import sleep
 import serial
-#import traceback
+import traceback
 
 ser = serial.Serial("/dev/ttyS0", 115200)
 
@@ -35,8 +35,8 @@ def handleKeyupdate(pkt: CACConnection.Packet):
         Eg: keys["w"] would now return either True or False
         '''
         sendKeys(keys)
-    except:
-
+    except Exception as ex:
+        traceback.print_exception(type(ex), ex, ex.__traceback__)
         # This will execute if the packet did'nt contain all key's or one key wasn't valid
 
         pass
@@ -78,7 +78,7 @@ def stop_it_get_me_some_help():
     ser.write(bytes("M,0,0,0,0,", 'utf-8'))
 
 def sendKeys(keys):
-    global blocked
+    global blocked, lastkey
     print(keys)
     #print(blocked)
     #print("Bla")
@@ -123,8 +123,17 @@ def sendKeys(keys):
         print("Servo rechts")
         ser.write(bytes("S,1,-5,",'utf-8'))
 
+    
+    sleep(0.001)
+    #received_data = ser.read()
+    #sleep(0.001)
+    #data_left = ser.inWaiting()
+    #received_data += ser.read(data_left)
+    #print(received_data)
+main()
+while True:
     totaltime[1] = totaltime[0]
-    totaltime[0] = time.time
+    totaltime[0] = time.time()
     time_dif = totaltime[0] - totaltime[1]
     while (ser.inWaiting() >= 0):
         line = ser.readline().decode('ascii').split("\r\n")[0] #.rstrip()
@@ -154,19 +163,13 @@ def sendKeys(keys):
         elif(line == 'S'):
             stop_it_get_me_some_help()
             blocked = True
-    sleep(0.001)
-    #received_data = ser.read()
+
+    
     #sleep(0.001)
-    #data_left = ser.inWaiting()
-    #received_data += ser.read(data_left)
-    #print(received_data)
-main()
-while True:
-    #sleep(0.001)
-    while(ser.inWaiting() > 0):
-        received_data = ser.read()
-        sleep(0.06)
-        data_left = ser.inWaiting()
-        received_data += ser.read(data_left)
-        print(received_data)
+##    while(ser.inWaiting() > 0):
+##        received_data = ser.read()
+##        sleep(0.06)
+##        data_left = ser.inWaiting()
+##        received_data += ser.read(data_left)
+##        print(received_data)
 
