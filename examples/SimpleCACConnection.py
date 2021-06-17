@@ -1,11 +1,11 @@
 import CACConnection
-
+import time
 
 # Starts the connection to the cac
 def main():
     global con
     # Creates the cac-connection
-    con = CACConnection.CACConnection("ws://localhost/ws/pi")
+    con = CACConnection.CACConnection("ws://85.214.207.75/ws/pi")
 
     # Registers the key-packet-handler with the packet-id 0
     con.registerPacket(0, handleKeyupdate)
@@ -29,6 +29,8 @@ def handleKeyupdate(pkt: CACConnection.Packet):
         Access it by keys["<keyname>"]
         Eg: keys["w"] would now return either True or False
         '''
+
+        print(keys)
     except:
 
         # This will execute if the packet did'nt contain all key's or one key wasn't valid
@@ -37,3 +39,5 @@ def handleKeyupdate(pkt: CACConnection.Packet):
 
 
 main()
+while True:
+        time.sleep(1)
